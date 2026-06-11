@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1a1a">
+  <meta name="description" content="まちの中のアートを探す地図">
+
+  <!-- PWA設定 -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <!-- Leaflet.js（地図ライブラリ） -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+  <title>アートマップ</title>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header class="header">
+    <h1 class="header__title">アートマップ</h1>
+    <p class="header__subtitle">まちの中のアートを探す</p>
+  </header>
+
+  <!-- 地図エリア -->
+  <div id="map"></div>
+
+  <!-- 作品詳細パネル（タップで開く） -->
+  <div id="panel" class="panel panel--hidden">
+    <button class="panel__close" id="panelClose">✕</button>
+    <div class="panel__image-wrap">
+      <img id="panelImage" src="" alt="" class="panel__image">
+    </div>
+    <div class="panel__body">
+      <p class="panel__category" id="panelCategory"></p>
+      <h2 class="panel__title" id="panelTitle"></h2>
+      <p class="panel__artist" id="panelArtist"></p>
+      <p class="panel__desc" id="panelDesc"></p>
+      <p class="panel__year" id="panelYear"></p>
+    </div>
+  </div>
+
+  <!-- 現在地ボタン -->
+  <button class="locate-btn" id="locateBtn" title="現在地へ移動">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+    </svg>
+  </button>
+
+  <script src="app.js"></script>
+</body>
+</html>
