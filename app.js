@@ -1,6 +1,20 @@
 // ============================================================
+//  エリア制限の設定
+//  中津川第一発電所周辺に地図を制限する
+// ============================================================
+const AREA = {
+  center: [36.9345, 138.6715],
+  minZoom: 13,   // これ以上引けない
+  maxZoom: 18,   // これ以上寄れない
+  // 移動できる範囲（南西・北東の座標）
+  bounds: L.latLngBounds(
+    [36.89, 138.62],  // 南西
+    [36.98, 138.73]   // 北東
+  )
+};
+
+// ============================================================
 //  作品・スポットデータ
-//  ↓ 写真・解説は仮データ。実際のものに差し替えるだけでOK
 // ============================================================
 const artworks = [
   {
@@ -50,12 +64,15 @@ const artworks = [
 ];
 
 // ============================================================
-//  地図の初期化
-//  中心座標＝中津川第一発電所付近
+//  地図の初期化（エリア制限あり）
 // ============================================================
 const map = L.map('map', {
-  center: [36.9345, 138.6715],
+  center: AREA.center,
   zoom: 15,
+  minZoom: AREA.minZoom,
+  maxZoom: AREA.maxZoom,
+  maxBounds: AREA.bounds,        // この範囲外にスクロールできない
+  maxBoundsViscosity: 1.0,       // 境界で完全に止まる（0〜1）
   zoomControl: false
 });
 
@@ -89,14 +106,14 @@ artworks.forEach(art => {
 // ============================================================
 //  詳細パネルの開閉
 // ============================================================
-const panel        = document.getElementById('panel');
-const panelClose   = document.getElementById('panelClose');
-const panelImage   = document.getElementById('panelImage');
+const panel         = document.getElementById('panel');
+const panelClose    = document.getElementById('panelClose');
+const panelImage    = document.getElementById('panelImage');
 const panelCategory = document.getElementById('panelCategory');
-const panelTitle   = document.getElementById('panelTitle');
-const panelArtist  = document.getElementById('panelArtist');
-const panelDesc    = document.getElementById('panelDesc');
-const panelYear    = document.getElementById('panelYear');
+const panelTitle    = document.getElementById('panelTitle');
+const panelArtist   = document.getElementById('panelArtist');
+const panelDesc     = document.getElementById('panelDesc');
+const panelYear     = document.getElementById('panelYear');
 
 function openPanel(art) {
   panelImage.src            = art.image;
@@ -106,7 +123,6 @@ function openPanel(art) {
   panelArtist.textContent   = art.artist;
   panelDesc.textContent     = art.desc;
   panelYear.textContent     = art.year ? art.year + '年' : '';
-
   panel.classList.remove('panel--hidden');
   map.panTo([art.lat, art.lng]);
 }
@@ -120,6 +136,8 @@ map.on('click', closePanel);
 
 // ============================================================
 //  現在地ボタン
+//  ── 現在地を青丸で表示するが、地図の中心は移動しない
+//  ── エリア外の場合はメッセージを表示
 // ============================================================
 const locateBtn = document.getElementById('locateBtn');
 let userMarker = null;
@@ -129,17 +147,33 @@ locateBtn.addEventListener('click', () => {
     alert('このブラウザは現在地取得に対応していません');
     return;
   }
+
   navigator.geolocation.getCurrentPosition(
     ({ coords }) => {
+      const { latitude, longitude } = coords;
+      const userLatLng = L.latLng(latitude, longitude);
+
+      // 既存の現在地マーカーを削除
       if (userMarker) map.removeLayer(userMarker);
-      userMarker = L.circleMarker([coords.latitude, coords.longitude], {
+
+      // 現在地マーカー（青い丸）を追加
+      userMarker = L.circleMarker(userLatLng, {
         radius: 10,
         fillColor: '#4a90e2',
         color: '#fff',
         weight: 2,
         fillOpacity: 0.9
       }).addTo(map);
-      map.setView([coords.latitude, coords.longitude], 17);
+
+      // エリア内なら現在地へ移動、エリア外なら通知のみ
+      if (AREA.bounds.contains(userLatLng)) {
+        map.setView(userLatLng, 16);
+      } else {
+        // エリア外：地図は動かさず、マーカーだけ記録
+        userMarker.bindPopup(
+          '<div style="font-size:13px;color:#333">現在地はエリア外です<br>発電所周辺の地図を表示しています</div>'
+        ).openPopup();
+      }
     },
     () => alert('現在地を取得できませんでした。\n位置情報の許可を確認してください。')
   );
