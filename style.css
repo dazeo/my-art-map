@@ -8,8 +8,8 @@
   --text-sub:  #888;
   --panel-h:   62vh;
   --radius:    12px;
-  --font-disp: 'Georgia', 'Hiragino Mincho ProN', serif;
-  --font-body: 'Helvetica Neue', 'Hiragino Sans', sans-serif;
+  --font-disp: 'Helvetica Neue', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+  --font-body: 'Helvetica Neue', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
 }
 
 /* ── リセット ── */
